@@ -9,6 +9,7 @@ MVP:
 
 Possible future additions:
 - [ ] user authentication
+- [ ] allow users to delete messages
 - [ ] persistent storage as plain-text (store previous messages so new users can view old messages)
 - [ ] more secure, persistent storage
 - [ ] create/remove chat rooms as needed/desired
