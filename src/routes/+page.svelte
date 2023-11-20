@@ -1,11 +1,25 @@
 <script lang="ts">
 	import postcss from 'postcss';
 	import { enhance } from '$app/forms';
+	import type { Action } from 'svelte/action';
 	import type { PageData } from './$types';
 	export let data: PageData;
 
 	$: messages = data.messages;
 	$: user = data.user;
+
+	const scrollToBottom: Action<HTMLElement, unknown> = (node) => {
+		const scroll = () =>
+			node.scroll({
+				top: node.scrollHeight,
+				behavior: 'smooth'
+			});
+		scroll();
+
+		return {
+			update: scroll
+		};
+	};
 </script>
 
 <div
@@ -13,7 +27,7 @@
 >
 	<h1 class="text-2xl text-center font-semibold">Chatroom</h1>
 
-	<div class="flex-1 overflow-y-auto break-words">
+	<div class="flex-1 overflow-y-auto break-words" use:scrollToBottom={messages}>
 		{#each messages as message, index}
 			{@const isMyMessage = message.user.id === user.id}
 			<div class="m-2">
