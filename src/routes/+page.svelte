@@ -2,6 +2,8 @@
 	import { enhance } from '$app/forms';
 	import type { Action } from 'svelte/action';
 	import type { PageData } from './$types';
+	import { invalidateAll } from '$app/navigation';
+	import { onMount } from 'svelte';
 	export let data: PageData;
 
 	$: messages = data.messages;
@@ -19,6 +21,20 @@
 			update: scroll
 		};
 	};
+
+	const startPollingForNewMessages = () => {
+		return setInterval(() => {
+			invalidateAll();
+		}, 3000);
+	};
+
+	onMount(() => {
+		const interval = startPollingForNewMessages();
+
+		return () => {
+			clearInterval(interval);
+		};
+	});
 </script>
 
 <div
