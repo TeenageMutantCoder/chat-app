@@ -38,6 +38,8 @@
 			{#if index !== messages.length - 1}
 				<hr class="mx-2 border-gray-500" />
 			{/if}
+		{:else}
+			<p>No messages here, yet.</p>
 		{/each}
 	</div>
 	<form method="POST" class="flex mt-3" use:enhance>
