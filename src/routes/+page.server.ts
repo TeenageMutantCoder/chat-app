@@ -1,4 +1,4 @@
-import { createMessage, createUser, getMessages } from '$lib/chat.server';
+import { createMessage, createUser, getMessages } from '$lib/server/chat';
 import { fail, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -11,6 +11,7 @@ export const load: PageServerLoad = async (event) => {
 		user = newUser;
 	}
 	const messages = getMessages();
+	event.depends('messages')
 
 	return { user, messages };
 };

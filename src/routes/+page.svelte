@@ -2,12 +2,16 @@
 	import { enhance } from '$app/forms';
 	import type { Action } from 'svelte/action';
 	import type { PageData } from './$types';
-	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { invalidate } from '$app/navigation';
+	import { pusher } from '$lib/pusher';
+
 	export let data: PageData;
 
-	$: messages = data.messages;
-	$: user = data.user;
+	$: currentUser = data.user;
+	$: sortedMessages = data.messages.sort(
+		(a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)
+	);
 
 	const scrollToBottom: Action<HTMLElement, unknown> = (node) => {
 		const scroll = () =>
@@ -22,17 +26,14 @@
 		};
 	};
 
-	const startPollingForNewMessages = () => {
-		return setInterval(() => {
-			invalidateAll();
-		}, 3000);
-	};
-
 	onMount(() => {
-		const interval = startPollingForNewMessages();
+		const channel = pusher.subscribe('chat');
+		channel.bind('message:new', function () {
+			invalidate('messages');
+		});
 
 		return () => {
-			clearInterval(interval);
+			channel.unbind();
 		};
 	});
 </script>
@@ -42,16 +43,16 @@
 >
 	<h1 class="text-2xl text-center font-semibold">Chatroom</h1>
 
-	<div class="flex-1 overflow-y-auto break-words" use:scrollToBottom={messages}>
-		{#each messages as message, index}
-			{@const isMyMessage = message.user.id === user.id}
+	<div class="flex-1 overflow-y-auto break-words" use:scrollToBottom={sortedMessages}>
+		{#each sortedMessages as message, index}
+			{@const isMyMessage = message.user.id === currentUser.id}
 			<div class="m-2">
 				<p class="text-lg">{message.text}</p>
 				<span class="text-xs text-gray-600" class:font-bold={isMyMessage}>
 					{isMyMessage ? 'Me' : message.user.name}
 				</span>
 			</div>
-			{#if index !== messages.length - 1}
+			{#if index !== sortedMessages.length - 1}
 				<hr class="mx-2 border-gray-500" />
 			{/if}
 		{:else}

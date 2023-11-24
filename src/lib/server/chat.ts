@@ -1,11 +1,12 @@
 import type { Message, User } from '$lib/chat';
 import { randomUUID } from 'crypto';
+import { pusher } from '$lib/server/pusher';
 
 const messages: Message[] = [];
 const users = new Map<User['id'], User>();
 
 export const getUser = (id: User['id']) => {
-  return users.get(id);
+  return users.get(id) ?? null;
 };
 
 export const createUser = () => {
@@ -26,6 +27,11 @@ export const createMessage = (text: Message['text'], user: User) => {
     createdAt: new Date().toISOString()
   };
   messages.push(message);
+
+  pusher.trigger('chat', 'message:new', {
+    userId: user.id
+  });
+
   return message;
 };
 
@@ -33,7 +39,7 @@ export const getMessages = () => {
   return messages.map((message) => {
     return {
       ...message,
-      user: { ...getUser(message.userId) }
+      user: { ...getUser(message.userId)! }
     };
   });
 };
