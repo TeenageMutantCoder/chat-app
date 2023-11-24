@@ -1,17 +1,17 @@
 Goal: Real-time chat web application
 
 MVP:
-- [ ] single chat room
-- [ ] no user authentication
-- [ ] no persistent storage
-- [ ] real-time updates via websockets
-- [ ] text only
+- [x] single chat room
+- [x] no user authentication
+- [x] no persistent storage (stored in-memory on the server)
+- [x] real-time updates via websockets
+- [x] text only
 
 Possible future additions:
+- [ ] persistent storage as plain-text (store previous messages so new users can view old messages)
+- [ ] add encryption, increase security
 - [ ] user authentication
 - [ ] allow users to delete messages
-- [ ] persistent storage as plain-text (store previous messages so new users can view old messages)
-- [ ] more secure, persistent storage
 - [ ] create/remove chat rooms as needed/desired
 - [ ] password-protected rooms
 - [ ] invite via unique link
