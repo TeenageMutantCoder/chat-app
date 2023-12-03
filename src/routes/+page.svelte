@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { pusher } from '$lib/pusher';
 	import type { Message, User } from '$lib/chat';
+	import { invalidate } from '$app/navigation';
 
 	export let data: PageData;
 	let messages = data.messages;
@@ -45,8 +46,16 @@
 			getUpdatedMessages([message]);
 		});
 
+		const visibilityChangeHandler = () => {
+			if (document.visibilityState === 'visible') {
+				invalidate('messages')
+			}
+		};
+		document.addEventListener('visibilitychange', visibilityChangeHandler);
+
 		return () => {
 			channel.unbind();
+			document.removeEventListener('visibilitychange', visibilityChangeHandler);
 		};
 	});
 </script>
