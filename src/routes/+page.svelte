@@ -3,15 +3,22 @@
 	import type { Action } from 'svelte/action';
 	import type { PageData } from './$types';
 	import { onMount } from 'svelte';
-	import { invalidate } from '$app/navigation';
 	import { pusher } from '$lib/pusher';
+	import type { Message, User } from '$lib/chat';
 
 	export let data: PageData;
+	let messages = data.messages;
 
+	const getUpdatedMessages = (newMessages: typeof messages) => {
+		const unsavedMessages = newMessages.filter((newMessage) => {
+			return !messages.some((existingMessage) => existingMessage.id === newMessage.id);
+		});
+		messages = messages.concat(unsavedMessages);
+	};
+
+	$: getUpdatedMessages(data.messages);
 	$: currentUser = data.user;
-	$: sortedMessages = data.messages.sort(
-		(a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)
-	);
+	$: sortedMessages = messages.sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
 
 	const scrollToBottom: Action<HTMLElement, unknown> = (node) => {
 		const scroll = () =>
@@ -28,8 +35,14 @@
 
 	onMount(() => {
 		const channel = pusher.subscribe('chat');
-		channel.bind('message:new', function () {
-			invalidate('messages');
+
+		type MessageNewData = {
+			message: Message;
+			user: User;
+		};
+		channel.bind('message:new', (data: MessageNewData) => {
+			const message = { ...data.message, user: data.user };
+			getUpdatedMessages([message]);
 		});
 
 		return () => {

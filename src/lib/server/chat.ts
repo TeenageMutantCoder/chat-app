@@ -29,7 +29,8 @@ export const createMessage = (text: Message['text'], user: User) => {
   messages.push(message);
 
   pusher.trigger('chat', 'message:new', {
-    userId: user.id
+    message,
+    user
   });
 
   return message;
